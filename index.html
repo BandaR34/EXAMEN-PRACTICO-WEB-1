@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="examenPractico.css">
+	<title>Examen practico 3 parcial</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com"> 
+	<link rel="preconnect" href="https://fonts.googleapis.com"> 
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+	<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@1,200&family=Koulen&family=Noto+Sans:ital,wght@1,100&family=Roboto+Mono:ital,wght@1,200&family=Roboto:ital,wght@1,300&display=swap" rel="stylesheet">
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript" src="js/jquery/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="js/jquery/jquery-ui-1.8.17.custom.min.js"></script>
+	<script type="text/javascript" src="jspdf.js"></script>
+	<script type="text/javascript" src="jspdf.plugin.addimage.js"></script>
+	<script type="text/javascript" src="jspdf.plugin.standard_fonts_metrics.js"></script>
+	<script type="text/javascript" src="jspdf.plugin.split_text_to_size.js"></script>
+	<script type="text/javascript" src="jspdf.plugin.from_html.js"></script>
+</head>
+<body>
+	<section id="contenedor">
+		<div class="formulario" style="padding: 20px;">
+			<h1>Promedio</h1>
+			<form method="POST">
+				<label for="p1">Calificación período 1</label><br><br>
+				<input type="text" id="p1" name="p1" ><br><br>
+				<label for="p2">Calificación período 2</label><br><br>
+				<input type="text" id="p2" name="p2" ><br><br>
+				<label for="p3">Calificación período 3</label><br><br>
+				<input type="text" id="p3" name="p3" ><br><br>
+				<label for="resultado">Resultado</label><br/><br> 
+				<input type="text" id="resultado" name="resultado"><br/><br>
+				<input type="button" value="Enviar" onclick="promedio()"><br>
+				<input type="button" value="PDF" onclick="generarPDF()"><br>
+			</form>
+		</div>
+	</section>
+
+	<div id="grafica"></div>
+	<div id="pdf">
+	<iframe frameborder="0" width="100%"height="600"></iframe>
+	</div>
+	<script>
+		google.charts.load('current', {'packages':['corechart']});
+		google.charts.setOnLoadCallback(drawChart);
+
+		function drawChart(x,y,w,z){
+			x=parseFloat(x);
+			y=parseFloat(y);
+			w=parseFloat(w);
+			z=parseFloat(z);
+		var data = google.visualization.arrayToDataTable([
+		  ['Período', 'Calificación'],
+		  ['Período 1',x],
+		  ['Período 2',y],
+		  ['Período 3', w],
+		  ['Promedio',z],
+		]);
+
+		var options = {
+		  title:'Calificaciones/Promedio periodos'
+		};
+
+		var chart = new google.visualization.BarChart(document.getElementById('grafica'));
+		  chart.draw(data, options);
+		}
+
+		function generarPDF(x,y,w,z, texto){
+			//Se crea el objeto
+			var doc = new jsPDF();
+
+			//Definimos el tamaño de la letra
+			doc.setFontSize(30);
+			//Establecemos el color de texto
+			doc.setTextColor(17, 122, 101);
+			doc.text(20, 20, "Calificaciones/Promedio periodos");
+			doc.setTextColor(108, 52, 131); //Color en formato RGB
+			doc.setFontSize(30);
+			doc.text(50, 35, "Calificaciones"); //Ubicación, Texto
+			doc.setTextColor(0,0,0);
+			doc.setFontSize(10);
+			doc.text(20, 50, "Período 1 \r Calificación: "+x);
+			doc.text(20, 70, "Período 2 \r Calificación: "+y);
+			doc.text(20, 90, "Período 3 \r Calificación: "+w);
+			doc.setTextColor(108, 52, 131); 
+			doc.setFontSize(30);
+			doc.text(50, 110, "Promedio"); 
+			doc.setTextColor(0,0,0);
+			doc.setFontSize(10);
+			doc.text(20, 130, "Calificación: "+x+"\r"+texto);
+
+			var string = doc.output('datauristring');
+
+			$('iframe').attr('src', string);
+		}
+
+		function promedio(){
+			var texto
+   			 var calif1=document.getElementById("p1").value;
+   			 var calif2=document.getElementById("p2").value;
+  			 var calif3=document.getElementById("p3").value;
+  			 var prom=parseFloat(calif1)+parseFloat(calif2)+parseFloat(calif3); //Se hace la suma de las calificaciones
+        
+    		prom=prom/3;
+    		if(prom==10){
+    			texto= "Excelente";
+    			document.getElementById("resultado").value=texto;
+    		}
+		    if(prom>=7 && prom<10){
+		    	texto= "Aprobado";
+		    	document.getElementById("resultado").value="Aprobado";
+
+		    }
+		    if(prom<7){
+		    	texto= "No Aprobado";
+		    	document.getElementById("resultado").value="No Aprobado";
+		    }
+		    /*Impresion del grafico*/
+		    drawChart(calif1,calif2,calif3,prom);
+			generarPDF(calif1,calif2,calif3,prom, texto);
+		}
+
+	</script>
+</body>
+</html>
